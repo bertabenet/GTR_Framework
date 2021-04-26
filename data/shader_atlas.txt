@@ -4,6 +4,11 @@ texture basic.vs texture.fs
 depth quad.vs depth.fs
 multi basic.vs multi.fs
 
+light_singlepass basic.vs light_singlepass.fs
+normal basic.vs normal.fs
+uvs basic.vs uvs.fs
+occlusion basic.vs occlusion.fs
+
 \basic.vs
 
 #version 330 core
@@ -44,6 +49,53 @@ void main()
 
 	//calcule the position of the vertex using the matrices
 	gl_Position = u_viewprojection * vec4( v_world_position, 1.0 );
+}
+
+\uvs.fs
+
+#version 330 core
+
+in vec2 v_uv;
+
+out vec4 FragColor;
+
+void main()
+{
+	FragColor = vec4(v_uv, 1.0, 1.0);
+}
+
+\normal.fs
+
+#version 330 core
+
+in vec3 v_normal;
+
+uniform vec4 u_color;
+uniform sampler2D u_texture;
+uniform float u_time;
+uniform float u_alpha_cutoff;
+
+out vec4 FragColor;
+
+void main()
+{	
+	FragColor = vec4(abs(normalize(v_normal)), 1.0);
+}
+
+\occlusion.fs
+
+#version 330 core
+in vec2 v_uv;
+uniform sampler2D u_metallic_roughness_texture;
+
+out vec4 FragColor;
+
+void main()
+{
+	vec2 uv = v_uv;
+	float occ = texture(u_metallic_roughness_texture, v_uv).x;
+
+	FragColor = vec4(occ, occ, occ, 1.0);
 }
 
 \quad.vs
@@ -101,6 +153,60 @@ void main()
 	if(color.a < u_alpha_cutoff)
 		discard;
 
+	FragColor = color;
+}
+
+
+\light_singlepass.fs
+
+#version 330 core
+
+in vec3 v_position;
+in vec3 v_world_position;
+in vec3 v_normal;
+in vec2 v_uv;
+in vec4 v_color;
+
+uniform vec4 u_color;
+uniform vec3 u_emissive_factor;
+
+uniform sampler2D u_texture;
+uniform sampler2D u_metallic_roughness_texture;
+uniform sampler2D u_emissive_texture;
+
+uniform float u_time;
+uniform float u_alpha_cutoff;
+
+uniform vec3 u_ambient_light;
+uniform vec3 u_test;
+uniform vec3 u_testcolor;
+
+out vec4 FragColor;
+
+void main()
+{
+	vec3 L = normalize( vec3(-33.7, 36.6, -11.8) -  v_world_position);
+	float diff = max(dot(v_normal, L), 0.0);
+	vec3 diffuse  = vec3(1.0, 1.0, 1.0)  * diff;
+	
+	vec2 uv = v_uv;
+	vec4 color = u_color;
+	color *= texture( u_texture, v_uv );
+
+	if(color.a < u_alpha_cutoff)
+		discard;
+
+	float occlusion = texture(u_metallic_roughness_texture, v_uv).x;
+	//vec3 light = u_ambient_light * occlusion;
+	vec3 light = u_ambient_light * occlusion + diffuse * 4.0;
+
+	color.xyz *= light;
+	
+	color.xyz += u_emissive_factor * texture(u_emissive_texture, v_uv).xyz;
+	
+	//color.xyz += diffuse * 0.9;
+	
+	
 	FragColor = color;
 }
 

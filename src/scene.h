@@ -11,8 +11,6 @@ class cJSON;
 //our namespace
 namespace GTR {
 
-
-
 	enum eEntityType {
 		NONE = 0,
 		PREFAB = 1,
@@ -20,6 +18,12 @@ namespace GTR {
 		CAMERA = 3,
 		REFLECTION_PROBE = 4,
 		DECALL = 5
+	};
+
+	enum eLightType {
+		POINT,
+		SPOT,
+		DIRECTIONAL
 	};
 
 	class Scene;
@@ -50,6 +54,20 @@ namespace GTR {
 		PrefabEntity();
 		virtual void renderInMenu();
 		virtual void configure(cJSON* json);
+	};
+	
+	class LightEntity : public GTR::BaseEntity 
+	{
+	public:
+		Vector3 color;
+		float intensity;
+		eLightType light_type;
+		float max_distance;
+		float cone_angle;
+		float area_size;
+
+		LightEntity();
+
 	};
 
 	//contains all entities of the scene

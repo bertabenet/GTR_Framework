@@ -10,8 +10,65 @@
 #include "scene.h"
 #include "extra/hdre.h"
 
+#include <algorithm>
+
 
 using namespace GTR;
+
+Renderer::Renderer() 
+{
+	render_mode = eRenderMode::SHOW_TEXTURE;
+}
+
+
+bool compareRenderCall(sRenderCall& a, sRenderCall& b)
+{
+	if (a.node->material->alpha_mode == b.node->material->alpha_mode) {
+		//return a.node->material->_zMax < b.node->material->_zMax;
+
+		Vector3 center_a = transformBoundingBox(a.node->getGlobalMatrix(false) * a.prefab_model, a.node->mesh->box).center;
+		Vector3 center_b = transformBoundingBox(b.node->getGlobalMatrix(false) * b.prefab_model, b.node->mesh->box).center;
+		float dist_a = a.camera->eye.distance(center_a);
+		float dist_b = b.camera->eye.distance(center_b);
+
+		return dist_a < dist_b;
+	}
+	// true -> first argument should go before
+	return a.node->material->alpha_mode <= b.node->material->alpha_mode;
+}
+
+void Renderer::renderCallNum(GTR::Node* node, Camera* camera, Matrix44 model, Prefab* prefab) {
+
+	if (node->mesh && node->material) rendercall_v.push_back(sRenderCall{ model, node, camera, prefab });
+	rendercall_all.push_back(sRenderCall{ model, node, camera, prefab });
+
+	for (int i = 0; i < node->children.size(); ++i)
+		renderCallNum(node->children[i], camera, model, prefab);
+}
+
+
+void Renderer::renderCall(GTR::Scene* scene, Camera* camera) {
+
+	rendercall_v.clear();
+
+	for (int i = 0; i < scene->entities.size(); ++i)
+	{
+		BaseEntity* ent = scene->entities[i];
+		if (!ent->visible)
+			continue;
+
+		if (ent->entity_type == PREFAB)
+		{
+			PrefabEntity* pent = (GTR::PrefabEntity*)ent;
+			if (pent->prefab) {
+				renderCallNum(&pent->prefab->root, camera, ent->model, pent->prefab);
+			}
+		}
+	}
+
+	std::sort(rendercall_v.begin(), rendercall_v.end(), compareRenderCall);
+}
+
 
 void Renderer::renderScene(GTR::Scene* scene, Camera* camera)
 {
@@ -22,19 +79,29 @@ void Renderer::renderScene(GTR::Scene* scene, Camera* camera)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	checkGLErrors();
 
-	//render entities
-	for (int i = 0; i < scene->entities.size(); ++i)
-	{
-		BaseEntity* ent = scene->entities[i];
-		if (!ent->visible)
-			continue;
-
-		//is a prefab!
-		if (ent->entity_type == PREFAB)
+	bool rendercall = true;
+	if (rendercall) {
+		renderCall(scene, camera);
+		for (std::vector<sRenderCall>::iterator it = rendercall_v.begin(); it != rendercall_v.end(); ++it) {
+			//renderPrefab((*it).prefab_model, (*it).prefab, (*it).camera);
+			renderNode((*it).prefab_model, (*it).node, camera);
+		}
+	}
+	else {
+		//render entities
+		for (int i = 0; i < scene->entities.size(); ++i)
 		{
-			PrefabEntity* pent = (GTR::PrefabEntity*)ent;
-			if(pent->prefab)
-				renderPrefab(ent->model, pent->prefab, camera);
+			BaseEntity* ent = scene->entities[i];
+			if (!ent->visible)
+				continue;
+
+			//is a prefab!
+			if (ent->entity_type == PREFAB)
+			{
+				PrefabEntity* pent = (GTR::PrefabEntity*)ent;
+				if (pent->prefab)
+					renderPrefab(ent->model, pent->prefab, camera);
+			}
 		}
 	}
 }
@@ -87,16 +154,22 @@ void Renderer::renderMeshWithMaterial(const Matrix44 model, Mesh* mesh, GTR::Mat
 	//define locals to simplify coding
 	Shader* shader = NULL;
 	Texture* texture = NULL;
+	GTR::Scene* scene = GTR::Scene::instance;
 
 	texture = material->color_texture.texture;
 	//texture = material->emissive_texture;
-	//texture = material->metallic_roughness_texture;
+	//texture = material->metallic_roughness_texture.texture; // occlusion_metallic_roughness
 	//texture = material->normal_texture;
-	//texture = material->occlusion_texture;
+	//texture = material->occlusion_texture.texture;
 	if (texture == NULL)
 		texture = Texture::getWhiteTexture(); //a 1x1 white texture
 
-	//select the blending
+	Texture* metallic_rougness_texture = material->metallic_roughness_texture.texture;
+	if(!metallic_rougness_texture) metallic_rougness_texture = Texture::getWhiteTexture();
+	Texture* emissive_texture = material->emissive_texture.texture;
+	if (!emissive_texture) emissive_texture = Texture::getWhiteTexture();
+
+	//select the	
 	if (material->alpha_mode == GTR::eAlphaMode::BLEND)
 	{
 		glEnable(GL_BLEND);
@@ -113,7 +186,14 @@ void Renderer::renderMeshWithMaterial(const Matrix44 model, Mesh* mesh, GTR::Mat
     assert(glGetError() == GL_NO_ERROR);
 
 	//chose a shader
-	shader = Shader::Get("texture");
+	switch (render_mode) {
+		case SHOW_NORMAL: shader = Shader::Get("normal"); break;
+		case SHOW_UVS: shader = Shader::Get("uvs"); break;
+		case SHOW_TEXTURE: shader = Shader::Get("texture"); break;
+		case SHOW_AO: shader = Shader::Get("occlusion"); break;
+		case DEFAULT: shader = Shader::Get("light_singlepass"); break;
+	}
+	
 
     assert(glGetError() == GL_NO_ERROR);
 
@@ -130,8 +210,27 @@ void Renderer::renderMeshWithMaterial(const Matrix44 model, Mesh* mesh, GTR::Mat
 	shader->setUniform("u_time", t );
 
 	shader->setUniform("u_color", material->color);
-	if(texture)
-		shader->setUniform("u_texture", texture, 0);
+	shader->setUniform("u_emissive_factor", material->emissive_factor);
+	if(texture) shader->setUniform("u_texture", texture, 0);
+	if (metallic_rougness_texture) shader->setUniform("u_metallic_roughness_texture", metallic_rougness_texture, 1);
+	if (emissive_texture) shader->setUniform("u_emissive_texture", emissive_texture, 2);
+
+	shader->setUniform("u_ambient_light", scene->ambient_light);
+	shader->setUniform("u_test", Vector3(-33.7, 36.6, -11.8)); //lent->model.rotateVector(Vector3(0,1,0))
+	shader->setUniform("u_testcolor", Vector3(0.0, 0.0, 0.0));
+
+	/*for (int i = 0; i < scene->entities.size(); ++i) {
+		BaseEntity* ent = scene->entities[i];
+		if (!ent->visible)
+			continue;
+
+		//is a light!
+		if (ent->entity_type == LIGHT)
+		{
+			LightEntity* lent = (GTR::LightEntity*)ent;
+			
+		}
+	}*/
 
 	//this is used to say which is the alpha threshold to what we should not paint a pixel on the screen (to cut polygons according to texture alpha)
 	shader->setUniform("u_alpha_cutoff", material->alpha_mode == GTR::eAlphaMode::MASK ? material->alpha_cutoff : 0);

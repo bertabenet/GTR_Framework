@@ -6,6 +6,21 @@ class Camera;
 
 namespace GTR {
 
+	enum eRenderMode{
+		DEFAULT,
+		SHOW_TEXTURE,
+		SHOW_NORMAL,
+		SHOW_AO,
+		SHOW_UVS
+	};
+
+	struct sRenderCall {
+		Matrix44 prefab_model;
+		Node* node;
+		Camera* camera;
+		Prefab* prefab;
+	};
+
 	class Prefab;
 	class Material;
 	
@@ -16,8 +31,16 @@ namespace GTR {
 
 	public:
 
+		std::vector<sRenderCall> rendercall_v;
+		std::vector<sRenderCall> rendercall_all;
+
+		eRenderMode render_mode;
+
+		Renderer();
+
 		//add here your functions
-		//...
+		void renderCall(GTR::Scene* scene, Camera* camera);
+		void renderCallNum(GTR::Node* node, Camera* camera, Matrix44 model, Prefab* prefab);
 
 		//renders several elements of the scene
 		void renderScene(GTR::Scene* scene, Camera* camera);
