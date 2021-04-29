@@ -575,6 +575,36 @@ Texture* Texture::getWhiteTexture()
 	return white;
 }
 
+Texture* Texture::getRedTexture()
+{
+	static Texture* red = NULL;
+	if (red)
+		return red;
+	const Uint8 data[3] = { 255,0,0 };
+	red = new Texture(1, 1, GL_RGB, GL_UNSIGNED_BYTE, true, (Uint8*)data);
+	return red;
+}
+
+Texture* Texture::getGreenTexture()
+{
+	static Texture* green = NULL;
+	if (green)
+		return green;
+	const Uint8 data[3] = { 0,255,0 };
+	green = new Texture(1, 1, GL_RGB, GL_UNSIGNED_BYTE, true, (Uint8*)data);
+	return green;
+}
+
+Texture* Texture::getBlueTexture()
+{
+	static Texture* blue = NULL;
+	if (blue)
+		return blue;
+	const Uint8 data[3] = { 255,0,0 };
+	blue = new Texture(1, 1, GL_RGB, GL_UNSIGNED_BYTE, true, (Uint8*)data);
+	return blue;
+}
+
 void Texture::copyTo(Texture* destination, Shader* shader)
 {
 	if (!destination)

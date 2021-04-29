@@ -227,6 +227,7 @@ class Matrix44
 		Vector3 rightVector() { return Vector3(m[0],m[1],m[2]); }
 		Vector3 topVector() { return Vector3(m[4],m[5],m[6]); }
 		Vector3 frontVector() { return Vector3(m[8],m[9],m[10]); }
+		Vector3 bottomVector() { return Vector3(m[12], m[13], m[14]); }
 
 		bool inverse();
 		void setUpAndOrthonormalize(Vector3 up);

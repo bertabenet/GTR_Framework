@@ -34,7 +34,7 @@ Application::Application(int window_width, int window_height, SDL_Window* window
 	this->window = window;
 	instance = this;
 	must_exit = false;
-	render_debug = true;
+	render_debug = false;
 	render_gui = true;
 
 	render_wireframe = false;
@@ -291,6 +291,7 @@ void Application::onKeyDown( SDL_KeyboardEvent event )
 		case SDLK_i: renderer->render_mode = GTR::eRenderMode::SHOW_NORMAL; break;
 		case SDLK_o: renderer->render_mode = GTR::eRenderMode::SHOW_TEXTURE; break;
 		case SDLK_p: renderer->render_mode = GTR::eRenderMode::DEFAULT; break;
+		case SDLK_l: renderer->render_mode = GTR::eRenderMode::SHOW_MULTI; break;
 		case SDLK_F6: scene->clear(); scene->load(scene->filename.c_str()); break;
 	}
 }

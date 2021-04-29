@@ -179,6 +179,9 @@ public:
 	static FBO* getGlobalFBO(Texture* texture);
 	static Texture* getBlackTexture();
 	static Texture* getWhiteTexture();
+	static Texture* getRedTexture();
+	static Texture* getGreenTexture();
+	static Texture* getBlueTexture();
 };
 
 bool isPowerOfTwo(int n);

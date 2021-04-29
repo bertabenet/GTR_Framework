@@ -11,7 +11,8 @@ namespace GTR {
 		SHOW_TEXTURE,
 		SHOW_NORMAL,
 		SHOW_AO,
-		SHOW_UVS
+		SHOW_UVS,
+		SHOW_MULTI
 	};
 
 	struct sRenderCall {
@@ -32,7 +33,6 @@ namespace GTR {
 	public:
 
 		std::vector<sRenderCall> rendercall_v;
-		std::vector<sRenderCall> rendercall_all;
 
 		eRenderMode render_mode;
 

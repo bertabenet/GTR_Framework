@@ -1,6 +1,6 @@
 {
-	"background_color":[0.3,0.3,0.3],
-	"ambient_light":[1,1,1],
+	"background_color":[0.100,0.133,0.191],
+	"ambient_light":[0.054,0.054,0.054],
 	"entities":[
 		{
 			"name":"floor",
@@ -30,10 +30,69 @@
 			"scale":[0.4,0.4,0.4]
 		},
 		{
+			"name":"headlight1",
+			"type":"LIGHT",
+			"light_type":"SPOT",
+			"position":[-33.7,36.6,-11.8],
+			"target":[1.0,0.0,1.0],
+			"color":[0.96, 0.79, 0.48],
+			"intensity":1.5,
+			"max_distance":670.0,
+			"cone_angle":45.0,
+			"area_size":1.0
+		},
+		{
+			"name":"headlight2",
+			"type":"LIGHT",
+			"light_type":"SPOT",
+			"position":[10.312,39.256,-52.538],
+			"target":[1.0,0.0,1.0],
+			"color":[0.96, 0.79, 0.48],
+			"intensity":1.5,
+			"max_distance":670.0,
+			"cone_angle":45.0,
+			"area_size":1.0
+		},
+		{
+			"name":"backlight1",
+			"type":"LIGHT",
+			"light_type":"POINT",
+			"position":[-137.266,38.571,-205.999],
+			"target":[9.0,-342.0,-65.0],
+			"color":[0.926,0.009,0.009],
+			"intensity":1.22,
+			"max_distance":65.0,
+			"cone_angle":45.0,
+			"area_size":0.270
+		},
+		{
+			"name":"backlight2",
+			"type":"LIGHT",
+			"light_type":"POINT",
+			"position":[-184.522,38.923,-158.328],
+			"target":[9.0,-172.0,-65.0],
+			"color":[0.926,0.009,0.009],
+			"intensity":1.22,
+			"max_distance":65.0,
+			"cone_angle":45.0,
+			"area_size":0.270
+		},
+		{
+			"name":"moon",
+			"type":"LIGHT",
+			"light_type":"DIRECTIONAL",
+			"position":[0.0, 1.0, 1.0],
+			"color":[0.224, 0.144, 0.353],
+			"intensity":0.68
+		},
+		{
 			"name":"lamp",
 			"type":"LIGHT",
-			"position":[-33.7,36.6,-11.8],
-			"target":[0,0,0.1]
+			"light_type":"POINT",
+			"position":[157.066, 118.721, -262.293],
+			"color":[0.503, 0.778, 0.877],
+			"intensity":4.0,
+			"max_distance":100.0
 		}
 	]
 }

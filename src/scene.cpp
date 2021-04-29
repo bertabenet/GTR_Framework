@@ -103,6 +103,57 @@ bool GTR::Scene::load(const char* filename)
 			ent->model.scale(scale.x, scale.y, scale.z);
 		}
 
+		if (cJSON_GetObjectItem(entity_json, "target"))
+		{
+			LightEntity* lent = (LightEntity*)ent;
+			Vector3 target = readJSONVector3(entity_json, "target", Vector3());
+			lent->target = target;
+		}
+
+		if (cJSON_GetObjectItem(entity_json, "color"))
+		{
+			LightEntity* lent = (LightEntity*)ent;
+			Vector3 color = readJSONVector3(entity_json, "color", Vector3());
+			lent->color = color;
+		}
+
+		if (cJSON_GetObjectItem(entity_json, "light_type"))
+		{
+			LightEntity* lent = (LightEntity*)ent;
+			std::string type = cJSON_GetObjectItem(entity_json, "light_type")->valuestring;
+			if (type == "POINT") lent->light_type = eLightType::POINT;
+			if (type == "SPOT") lent->light_type = eLightType::SPOT;
+			if (type == "DIRECTIONAL") lent->light_type = eLightType::DIRECTIONAL;
+		}
+
+		if (cJSON_GetObjectItem(entity_json, "intensity"))
+		{
+			LightEntity* lent = (LightEntity*)ent;
+			float angle = cJSON_GetObjectItem(entity_json, "intensity")->valuedouble;
+			lent->intensity = angle;
+		}
+
+		if (cJSON_GetObjectItem(entity_json, "max_distance"))
+		{
+			LightEntity* lent = (LightEntity*)ent;
+			float max_distance = cJSON_GetObjectItem(entity_json, "max_distance")->valuedouble;
+			lent->max_distance = max_distance;
+		}
+
+		if (cJSON_GetObjectItem(entity_json, "cone_angle"))
+		{
+			LightEntity* lent = (LightEntity*)ent;
+			float cone_angle = cJSON_GetObjectItem(entity_json, "cone_angle")->valuedouble;
+			lent->cone_angle = cone_angle;
+		}
+
+		if (cJSON_GetObjectItem(entity_json, "area_size"))
+		{
+			LightEntity* lent = (LightEntity*)ent;
+			float area_size = cJSON_GetObjectItem(entity_json, "area_size")->valuedouble;
+			lent->area_size = area_size;
+		}
+
 		ent->configure(entity_json);
 	}
 
@@ -166,6 +217,29 @@ void GTR::PrefabEntity::renderInMenu()
 
 GTR::LightEntity::LightEntity()
 {
-	entity_type = LIGHT;
+	entity_type = LIGHT;	
 }
 
+void GTR::LightEntity::renderInMenu()
+{
+	BaseEntity::renderInMenu();
+
+#ifndef SKIP_IMGUI
+	ImGui::ColorEdit4("Color", color.v);
+	ImGui::DragFloat("Intensity", &intensity, 0.01f);
+	ImGui::DragFloat("Max distance", &max_distance);
+	ImGui::DragFloat("Area size", &area_size, 0.01f);
+	ImGui::DragFloat3("Target", target.v);
+#endif
+}
+
+void GTR::LightEntity::setUniforms(Shader* s) {
+	s->setUniform("u_light_type", (int)light_type);
+	s->setUniform("u_light_position", model.bottomVector());
+	s->setUniform("u_light_color", color);
+	s->setUniform("u_direction", target);
+	s->setUniform("u_spotExponent", (1 / area_size));
+	s->setUniform("u_spotCosineCutoff", cos(cone_angle));
+	s->setUniform("u_light_factor", intensity);
+	s->setUniform("u_maxdist", max_distance);
+}

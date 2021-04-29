@@ -2,6 +2,7 @@
 #define SCENE_H
 
 #include "framework.h"
+#include "shader.h"
 #include <string>
 
 //forward declaration
@@ -21,9 +22,10 @@ namespace GTR {
 	};
 
 	enum eLightType {
-		POINT,
-		SPOT,
-		DIRECTIONAL
+		NOLIGHT = 0,
+		POINT = 1,
+		SPOT = 2,
+		DIRECTIONAL = 3
 	};
 
 	class Scene;
@@ -38,6 +40,7 @@ namespace GTR {
 		eEntityType entity_type;
 		Matrix44 model;
 		bool visible;
+
 		BaseEntity() { entity_type = NONE; visible = true; }
 		virtual ~BaseEntity() {}
 		virtual void renderInMenu();
@@ -65,9 +68,12 @@ namespace GTR {
 		float max_distance;
 		float cone_angle;
 		float area_size;
+		Vector3 target;
 
 		LightEntity();
+		virtual void renderInMenu();
 
+		void setUniforms(Shader* s);
 	};
 
 	//contains all entities of the scene
