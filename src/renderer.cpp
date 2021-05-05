@@ -11,13 +11,63 @@
 #include "extra/hdre.h"
 
 #include <algorithm>
+#include "application.h"
 
 
 using namespace GTR;
 
-Renderer::Renderer()
+Renderer::Renderer(GTR::Scene* scene)
 {
 	render_mode = eRenderMode::SHOW_TEXTURE;
+	for (int i = 0; i < scene->l_entities.size(); ++i) {
+		LightEntity* lent = scene->l_entities[i];
+		lent->fbo.create(Application::instance->window_width, Application::instance->window_height, 1, GL_RGB, GL_FLOAT);
+	}
+}
+
+void Renderer::renderToFBO(GTR::Scene* scene, Camera* camera) {
+
+	Camera* cam = new Camera();
+	for (int i = 0; i < scene->l_entities.size(); ++i) {
+		LightEntity* lent = scene->l_entities[i];
+		if (lent->light_type == eLightType::SPOT) {
+			cam->lookAt(lent->model.bottomVector(), lent->model.bottomVector() + lent->target, Vector3(0.f, 1.f, 0.f));
+			cam->setPerspective(lent->cone_angle, Application::instance->window_width / (float)Application::instance->window_height, 1.0f, 10000.f);
+		}
+		else if (lent->light_type == eLightType::DIRECTIONAL) {
+			cam->lookAt(lent->model.bottomVector(), Vector3(0.0f, 0.0f, 0.0f), Vector3(-1.0f, -1.0f, 0.f));
+			cam->setOrthographic(-600,600,-600, 600,-600,600);			
+		}
+		else if (lent->light_type == eLightType::POINT) {
+			continue;
+		}
+		lent->viewproj_mat = cam->viewprojection_matrix;
+		lent->fbo.bind();
+		render_alpha = false;
+		renderScene(scene, cam);
+		lent->fbo.unbind();
+	}
+
+
+	for (int i = 0; i < scene->l_entities.size(); ++i) {
+		LightEntity* lent = scene->l_entities[i];
+		if (lent->name == "headlight1") {
+			if (render_mode == SHOW_DEPTH) {
+				Shader* shader = Shader::Get("depth");
+				shader->enable();
+				shader->setUniform("u_camera_nearfar", Vector2(cam->near_plane, cam->far_plane));
+				lent->fbo.depth_texture->toViewport(shader);
+			}
+		}
+	}
+
+	if (render_mode != SHOW_DEPTH) 
+	{
+		render_alpha = true;
+		renderScene(scene, camera);
+	}
+
+	
 }
 
 
@@ -39,7 +89,9 @@ bool compareRenderCall(sRenderCall& a, sRenderCall& b)
 
 void Renderer::renderCallNum(GTR::Node* node, Camera* camera, Matrix44 model, Prefab* prefab) {
 
-	if (node->mesh && node->material) rendercall_v.push_back(sRenderCall{ model, node, camera, prefab });
+	if (node->mesh && node->material) 
+		if (!(render_alpha == false && node->material->alpha_mode == BLEND))
+			rendercall_v.push_back(sRenderCall{ model, node, camera, prefab });
 
 	for (int i = 0; i < node->children.size(); ++i)
 		renderCallNum(node->children[i], camera, model, prefab);
@@ -78,11 +130,9 @@ void Renderer::renderScene(GTR::Scene* scene, Camera* camera)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	checkGLErrors();
 
-	bool rendercall = true;
-	if (rendercall) {
+	if (true) {
 		renderCall(scene, camera);
 		for (std::vector<sRenderCall>::iterator it = rendercall_v.begin(); it != rendercall_v.end(); ++it) {
-			//renderPrefab((*it).prefab_model, (*it).prefab, (*it).camera);
 			renderNode((*it).prefab_model, (*it).node, camera);
 		}
 	}
@@ -156,10 +206,6 @@ void Renderer::renderMeshWithMaterial(const Matrix44 model, Mesh* mesh, GTR::Mat
 	GTR::Scene* scene = GTR::Scene::instance;
 
 	texture = material->color_texture.texture;
-	//texture = material->emissive_texture;
-	//texture = material->metallic_roughness_texture.texture; // occlusion_metallic_roughness
-	//texture = material->normal_texture;
-	//texture = material->occlusion_texture.texture;
 	if (texture == NULL)
 		texture = Texture::getWhiteTexture(); //a 1x1 white texture
 
@@ -189,12 +235,13 @@ void Renderer::renderMeshWithMaterial(const Matrix44 model, Mesh* mesh, GTR::Mat
 
 	//chose a shader
 	switch (render_mode) {
-	case SHOW_NORMAL: shader = Shader::Get("normal"); break;
-	case SHOW_UVS: shader = Shader::Get("uvs"); break;
-	case SHOW_TEXTURE: shader = Shader::Get("texture"); break;
-	case SHOW_AO: shader = Shader::Get("occlusion"); break;
-	case DEFAULT: shader = Shader::Get("light_singlepass"); break;
-	case SHOW_MULTI: shader = Shader::Get("light_multipass"); break;
+		case SHOW_NORMAL: shader = Shader::Get("normal"); break;
+		case SHOW_UVS: shader = Shader::Get("uvs"); break;
+		case SHOW_TEXTURE: shader = Shader::Get("texture"); break;
+		case SHOW_AO: shader = Shader::Get("occlusion"); break;
+		case DEFAULT: shader = Shader::Get("light_singlepass"); break;
+		case SHOW_MULTI: shader = Shader::Get("light_multipass"); break;
+		case SHOW_DEPTH: shader = Shader::Get("texture"); break;
 	}
 
 
@@ -224,46 +271,43 @@ void Renderer::renderMeshWithMaterial(const Matrix44 model, Mesh* mesh, GTR::Mat
 	//this is used to say which is the alpha threshold to what we should not paint a pixel on the screen (to cut polygons according to texture alpha)
 	shader->setUniform("u_alpha_cutoff", material->alpha_mode == GTR::eAlphaMode::MASK ? material->alpha_cutoff : 0);
 
+	shader->setUniform("u_camera_nearfar", Vector2(camera->near_plane, camera->far_plane));
+
+	// SINGLEPASS
 	if (render_mode == DEFAULT) {
-		for (int i = 0; i < scene->entities.size(); ++i) {
-			BaseEntity* ent = scene->entities[i];
-			//is a light!
-			if (ent->entity_type == LIGHT)
-			{
-				LightEntity* lent = (GTR::LightEntity*)ent;
-				if (lent->name == "headlight1") {
-					shader->setUniform("u_spot_light_pos", lent->model.bottomVector());
-					shader->setUniform("u_spot_direction", lent->target);
-					shader->setUniform("u_spot_color", lent->color);
-					shader->setUniform("u_spotCosineCutoff", cos(lent->cone_angle));
-					shader->setUniform("u_spotExponent", (1 / lent->area_size));
-					shader->setUniform("u_spot_maxdist", lent->max_distance);
-					shader->setUniform("u_spot_visible", lent->visible);
-				}
-				if (lent->name == "moon") {
-					shader->setUniform("u_directional_color", lent->color);
-					shader->setUniform("u_directional_pos", lent->model.bottomVector());
-					shader->setUniform("u_directional_factor", lent->intensity);
-					shader->setUniform("u_directional_visible", lent->visible);
-				}
-				if (lent->name == "lamp") {
-					shader->setUniform("u_point_light_pos", lent->model.bottomVector());
-					shader->setUniform("u_point_color", lent->color);
-					shader->setUniform("u_point_factor", lent->intensity);
-					shader->setUniform("u_point_maxdist", lent->max_distance);
-					shader->setUniform("u_point_visible", lent->visible);
-				}
-				shader->setUniform("u_read_normal", read_normal);
+		for (int i = 0; i < scene->l_entities.size(); ++i) 
+		{
+			LightEntity* lent = scene->l_entities[i];
+			if (lent->name == "headlight1") {
+				shader->setUniform("u_spot_light_pos", lent->model.bottomVector());
+				shader->setUniform("u_spot_direction", lent->target);
+				shader->setUniform("u_spot_color", lent->color);
+				shader->setUniform("u_spotCosineCutoff", cos(lent->cone_angle));
+				shader->setUniform("u_spotExponent", (1 / lent->area_size));
+				shader->setUniform("u_spot_maxdist", lent->max_distance);
+				shader->setUniform("u_spot_visible", lent->visible);
 			}
+			if (lent->name == "moon") {
+				shader->setUniform("u_directional_color", lent->color);
+				shader->setUniform("u_directional_pos", lent->model.bottomVector());
+				shader->setUniform("u_directional_factor", lent->intensity);
+				shader->setUniform("u_directional_visible", lent->visible);
+			}
+			if (lent->name == "lamp") {
+				shader->setUniform("u_point_light_pos", lent->model.bottomVector());
+				shader->setUniform("u_point_color", lent->color);
+				shader->setUniform("u_point_factor", lent->intensity);
+				shader->setUniform("u_point_maxdist", lent->max_distance);
+				shader->setUniform("u_point_visible", lent->visible);
+			}
+			shader->setUniform("u_read_normal", read_normal);
 
 		}
 	}
 
-
-
+	// MULTIPASS
 	if (render_mode == SHOW_MULTI) {
 
-		bool first_enter = true;
 		glDepthFunc(GL_LEQUAL);
 		glBlendFunc(GL_ONE, GL_ONE);
 
@@ -277,35 +321,32 @@ void Renderer::renderMeshWithMaterial(const Matrix44 model, Mesh* mesh, GTR::Mat
 			mesh->render(GL_TRIANGLES);
 		}
 		else {
-			for (int i = 0; i < scene->entities.size(); ++i) {
-				BaseEntity* ent = scene->entities[i];
-				if (!ent->visible)
+			for (int i = 0; i < scene->l_entities.size(); ++i) {
+				LightEntity* lent = scene->l_entities[i];
+				if (!lent->visible)
 					continue;
 
-				//is a light!
-				if (ent->entity_type == LIGHT)
-				{
-					LightEntity* lent = (GTR::LightEntity*)ent;
-
-					if (lent->visible) {
-
-						if (first_enter) glDisable(GL_BLEND);	// first time rendering the mesh
-						else glEnable(GL_BLEND);				
+				if (i == 0) glDisable(GL_BLEND);	// first time rendering the mesh
+				else glEnable(GL_BLEND);				
 						
-						// set uniforms
-						lent->setUniforms(shader);
-						shader->setUniform("u_read_normal", read_normal);
+				// set uniforms
+				lent->setUniforms(shader);
+				shader->setUniform("u_read_normal", read_normal);
 
-						if (!first_enter) {
-							shader->setUniform("u_ambient_light", (float)0.0);
-							shader->setUniform("u_emissive_factor", (float)0.0);
-						}
-
-						mesh->render(GL_TRIANGLES);
-						first_enter = false;
-					}
+				if (lent->light_type != POINT) {
+					shader->setUniform("u_shadowmap", lent->fbo.depth_texture, 4); 
+					shader->setUniform("u_have_shadows", true);
+					shader->setUniform("u_shadow_viewproj", lent->viewproj_mat);
+					shader->setUniform("u_shadow_bias", (float)0.001);
 				}
+				else shader->setUniform("u_have_shadows", false);
 
+				if (i != 0) {
+					shader->setUniform("u_ambient_light", (float)0.0);
+					shader->setUniform("u_emissive_factor", (float)0.0);
+				}
+				
+				mesh->render(GL_TRIANGLES);				
 			}
 		}
 	}

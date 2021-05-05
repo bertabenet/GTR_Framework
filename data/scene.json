@@ -82,8 +82,8 @@
 			"type":"LIGHT",
 			"light_type":"DIRECTIONAL",
 			"position":[0.0, 1.0, 1.0],
-			"color":[0.224, 0.144, 0.353],
-			"intensity":0.68
+			"color":[0.323, 0.281, 0.392],
+			"intensity":1.26
 		},
 		{
 			"name":"lamp",

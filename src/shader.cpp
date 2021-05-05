@@ -869,7 +869,7 @@ Shader* Shader::getDefaultShader(std::string name)
 				gl_FragColor = texture2D( u_texture, v_uv );\n\
 			}";
 	}
-	else if (name == "linear_depth")
+	else if (name == "_depth")
 	{
 		vs = "attribute vec3 a_vertex; \
 			varying vec2 v_uv;\n\

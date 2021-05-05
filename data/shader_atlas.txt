@@ -9,6 +9,8 @@ normal basic.vs normal.fs
 uvs basic.vs uvs.fs
 occlusion basic.vs occlusion.fs
 light_multipass basic.vs light_multipass.fs
+fx quad.vs fx.fs
+
 
 \basic.vs
 
@@ -318,6 +320,7 @@ uniform sampler2D u_texture;
 uniform sampler2D u_normal_texture;
 uniform sampler2D u_metallic_roughness_texture;
 uniform sampler2D u_emissive_texture;
+uniform sampler2D u_shadowmap;
 uniform float u_time;
 uniform float u_alpha_cutoff;
 
@@ -334,6 +337,10 @@ uniform float u_light_factor;
 uniform float u_maxdist;
 
 uniform bool u_read_normal;
+uniform bool u_have_shadows;
+
+uniform mat4 u_shadow_viewproj;
+uniform float u_shadow_bias;
 
 out vec4 FragColor;
 
@@ -368,6 +375,7 @@ vec3 perturbNormal(vec3 N, vec3 WP, vec2 uv, vec3 normal_pixel)
 
 void main()
 {
+
 	vec3 L = normalize( u_light_position -  v_world_position );
 	vec3 N = normalize(v_normal);
 	
@@ -382,14 +390,14 @@ void main()
 		N = normal;
 	}
 	
+	//compute distance
+	float light_distance = length(u_light_position - v_world_position );
+	float att_factor = u_maxdist - light_distance; //compute a linear attenuation factor
+	att_factor /= u_maxdist; //normalize factor
+	att_factor = max( att_factor, 0.0 ); //ignore negative values
+	
 	// POINT (type 1)
 	if(u_light_type == 1){
-		//compute distance
-		float light_distance = length(u_light_position - v_world_position );
-		float att_factor = u_maxdist - light_distance; //compute a linear attenuation factor
-		att_factor /= u_maxdist; //normalize factor
-		att_factor = max( att_factor, 0.0 ); //ignore negative values
-
 		//apply to amount of light
 		vec3 point = clamp(dot(L, N), 0.0, 1.0) * texture(u_texture, v_uv).xyz * u_light_color * u_light_factor * att_factor; 
 		light += point;
@@ -404,7 +412,7 @@ void main()
 		if (spotCosine >= u_spotCosineCutoff) { 
 			spotFactor = pow(spotCosine, u_spotExponent);
 		}
-		vec3 spot = dot(L, N) * texture(u_texture, v_uv).xyz * u_light_color * spotFactor;
+		vec3 spot = dot(L, N) * texture(u_texture, v_uv).xyz * u_light_color * spotFactor * att_factor;
 		light += spot;
 	}
 	
@@ -425,10 +433,58 @@ void main()
 	color.xyz *= light;
 	
 	color.xyz += u_emissive_factor * texture(u_emissive_texture, v_uv).xyz;	
+	
+	
+	// SHADOWMAPS
+	float shadow_factor = 1.0;
 
+	if(u_have_shadows){
+		vec4 proj_pos = u_shadow_viewproj * vec4(v_world_position, 1.0);
+		vec2 shadow_uv = proj_pos.xy / proj_pos.w;
+		shadow_uv = shadow_uv * 0.5 + vec2(0.5);
+		
+		float real_depth = (proj_pos.z - u_shadow_bias) / proj_pos.w;
+		real_depth = real_depth * 0.5 + 0.5;
+		float shadow_depth = texture( u_shadowmap, shadow_uv).x;
+		
+		if( shadow_depth < real_depth )
+			shadow_factor = 0.0;
+		
+		if(real_depth < 0.0 || real_depth > 1.0)
+			shadow_factor =  1.0;
+		
+		if(u_light_type == 3){
+			if( shadow_uv.x < 0.0 || shadow_uv.x > 1.0 || shadow_uv.y < 0.0 || shadow_uv.y > 1.0 )
+				shadow_factor = 1.0;
+		}
+		
+	}
+	
+	color.xyz *= shadow_factor;
+	
 	FragColor = color;
 }
 
+
+\fx.fs
+
+#version 330 core
+
+in vec2 v_uv;
+
+uniform sampler2D u_texture;
+uniform float u_time;
+
+out vec4 FragColor;
+
+void main()
+{
+	vec2 uv = v_uv;
+	vec4 color = texture( u_texture, v_uv );
+	color = vec4(1.0) - color;
+
+	FragColor = color;
+}
 
 
 \multi.fs

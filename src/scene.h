@@ -3,6 +3,7 @@
 
 #include "framework.h"
 #include "shader.h"
+#include "fbo.h"
 #include <string>
 
 //forward declaration
@@ -70,6 +71,9 @@ namespace GTR {
 		float area_size;
 		Vector3 target;
 
+		Matrix44 viewproj_mat;
+		FBO fbo;
+
 		LightEntity();
 		virtual void renderInMenu();
 
@@ -89,9 +93,11 @@ namespace GTR {
 
 		std::string filename;
 		std::vector<BaseEntity*> entities;
+		std::vector<LightEntity*> l_entities;
 
 		void clear();
 		void addEntity(BaseEntity* entity);
+		void addEntityLight(LightEntity* entity);
 
 		bool load(const char* filename);
 		BaseEntity* createEntity(std::string type);

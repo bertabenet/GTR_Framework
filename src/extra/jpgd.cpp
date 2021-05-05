@@ -1,6 +1,8 @@
 // jpgd.cpp - C++ class for JPEG decompression. Written by Richard Geldreich <richgel99@gmail.com> between 1994-2020.
 // Supports progressive and baseline sequential JPEG image files, and the most common chroma subsampling factors: Y, H1V1, H2V1, H1V2, and H2V2.
-// Supports box and linear chroma upsampling.
+// Supports box and 
+// 
+//  chroma upsampling.
 //
 // Released under two licenses. You are free to choose which license you want:
 // License 1: 
@@ -19,7 +21,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-// Alex Evans: Linear memory allocator (taken from jpge.h).
+// Alex Evans: 
+//  memory allocator (taken from jpge.h).
 // v1.04, May. 19, 2012: Code tweaks to fix VS2008 static code analysis warnings
 // v2.00, March 20, 2020: Fuzzed with zzuf and afl. Fixed several issues, converted most assert()'s to run-time checks. Added chroma upsampling. Removed freq. domain upsampling. gcc/clang warnings.
 //

@@ -34,7 +34,7 @@ Application::Application(int window_width, int window_height, SDL_Window* window
 	this->window = window;
 	instance = this;
 	must_exit = false;
-	render_debug = false;
+	render_debug = true;
 	render_gui = true;
 
 	render_wireframe = false;
@@ -70,8 +70,8 @@ Application::Application(int window_width, int window_height, SDL_Window* window
 		exit(1);
 
 	//This class will be the one in charge of rendering all 
-	renderer = new GTR::Renderer(); //here so we have opengl ready in constructor
-
+	renderer = new GTR::Renderer(scene); //here so we have opengl ready in constructor
+	
 	//hide the cursor
 	SDL_ShowCursor(!mouse_locked); //hide or show the mouse
 }
@@ -99,11 +99,12 @@ void Application::render(void)
 	//Matrix44 model;
 	//renderer->renderPrefab( model, prefab, camera );
 
-	renderer->renderScene(scene, camera);
+	//renderer->renderScene(scene, camera);
+	renderer->renderToFBO(scene, camera);
 
 	//Draw the floor grid, helpful to have a reference point
-	if(render_debug)
-		drawGrid();
+	//if(render_debug)
+	//	drawGrid();
 
     glDisable(GL_DEPTH_TEST);
     //render anything in the gui after this
@@ -292,6 +293,7 @@ void Application::onKeyDown( SDL_KeyboardEvent event )
 		case SDLK_o: renderer->render_mode = GTR::eRenderMode::SHOW_TEXTURE; break;
 		case SDLK_p: renderer->render_mode = GTR::eRenderMode::DEFAULT; break;
 		case SDLK_l: renderer->render_mode = GTR::eRenderMode::SHOW_MULTI; break;
+		case SDLK_k: renderer->render_mode = GTR::eRenderMode::SHOW_DEPTH; break;
 		case SDLK_F6: scene->clear(); scene->load(scene->filename.c_str()); break;
 	}
 }

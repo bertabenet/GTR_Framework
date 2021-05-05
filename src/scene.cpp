@@ -27,6 +27,12 @@ void GTR::Scene::addEntity(BaseEntity* entity)
 	entities.push_back(entity); entity->scene = this;
 }
 
+void GTR::Scene::addEntityLight(LightEntity* entity)
+{
+	l_entities.push_back(entity); entity->scene = this;
+}
+
+
 bool GTR::Scene::load(const char* filename)
 {
 	std::string content;
@@ -108,6 +114,7 @@ bool GTR::Scene::load(const char* filename)
 			LightEntity* lent = (LightEntity*)ent;
 			Vector3 target = readJSONVector3(entity_json, "target", Vector3());
 			lent->target = target;
+			lent->model.rotate(PI/2, target);
 		}
 
 		if (cJSON_GetObjectItem(entity_json, "color"))
@@ -155,7 +162,14 @@ bool GTR::Scene::load(const char* filename)
 		}
 
 		ent->configure(entity_json);
+
+		if (ent->entity_type == LIGHT) {
+			LightEntity* lent = (LightEntity*)ent;
+			addEntityLight(lent);
+		}
+
 	}
+
 
 	//free memory
 	cJSON_Delete(json);

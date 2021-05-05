@@ -1,5 +1,6 @@
 #pragma once
 #include "prefab.h"
+#include "fbo.h"
 
 //forward declarations
 class Camera;
@@ -12,7 +13,8 @@ namespace GTR {
 		SHOW_NORMAL,
 		SHOW_AO,
 		SHOW_UVS,
-		SHOW_MULTI
+		SHOW_MULTI,
+		SHOW_DEPTH
 	};
 
 	struct sRenderCall {
@@ -35,12 +37,15 @@ namespace GTR {
 		std::vector<sRenderCall> rendercall_v;
 
 		eRenderMode render_mode;
+		bool render_alpha;
 
-		Renderer();
+		Renderer(GTR::Scene* scene);
 
 		//add here your functions
 		void renderCall(GTR::Scene* scene, Camera* camera);
 		void renderCallNum(GTR::Node* node, Camera* camera, Matrix44 model, Prefab* prefab);
+
+		void renderToFBO(GTR::Scene* scene, Camera* camera);
 
 		//renders several elements of the scene
 		void renderScene(GTR::Scene* scene, Camera* camera);
