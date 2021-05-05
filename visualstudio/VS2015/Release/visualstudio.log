@@ -1,29 +1,19 @@
 ﻿  application.cpp
-  renderer.cpp
-C:\Users\berta\Documents\GitHub\GTR_Framework\src\scene.h(10,12): warning C4099: 'cJSON': nombre de tipo visto anteriormente usando 'struct' ahora se ve usando 'class' (compilando archivo de origen ..\..\src\application.cpp)
-C:\Users\berta\Documents\GitHub\GTR_Framework\src\extra\cJSON.h(103): message : vea la declaración de 'cJSON' (compilando archivo de origen ..\..\src\application.cpp)
-C:\Users\berta\Documents\GitHub\GTR_Framework\src\extra\cJSON.h(104,1): warning C4099: 'cJSON': nombre de tipo visto anteriormente usando 'class' ahora se ve usando 'struct' (compilando archivo de origen ..\..\src\renderer.cpp)
-C:\Users\berta\Documents\GitHub\GTR_Framework\src\extra\cJSON.h(103): message : vea la declaración de 'cJSON' (compilando archivo de origen ..\..\src\renderer.cpp)
-C:\Users\berta\Documents\GitHub\GTR_Framework\src\renderer.cpp(22,20): warning C4018: '<': no coinciden signed/unsigned
-C:\Users\berta\Documents\GitHub\GTR_Framework\src\renderer.cpp(31,20): warning C4018: '<': no coinciden signed/unsigned
+C:\Users\berta\Documents\GitHub\GTR_Framework\src\scene.h(10,12): warning C4099: 'cJSON': nombre de tipo visto anteriormente usando 'struct' ahora se ve usando 'class'
+C:\Users\berta\Documents\GitHub\GTR_Framework\src\extra\cJSON.h(103): message : vea la declaración de 'cJSON'
 C:\Users\berta\Documents\GitHub\GTR_Framework\src\application.cpp(117,14): warning C4244: 'inicializando': conversión de 'double' a 'float'; posible pérdida de datos
-C:\Users\berta\Documents\GitHub\GTR_Framework\src\renderer.cpp(52,20): warning C4018: '<': no coinciden signed/unsigned
 C:\Users\berta\Documents\GitHub\GTR_Framework\src\application.cpp(118,20): warning C4244: 'inicializando': conversión de 'double' a 'float'; posible pérdida de datos
 C:\Users\berta\Documents\GitHub\GTR_Framework\src\application.cpp(134,55): warning C4244: 'argumento': conversión de 'double' a 'float'; posible pérdida de datos
 C:\Users\berta\Documents\GitHub\GTR_Framework\src\application.cpp(136,55): warning C4244: 'argumento': conversión de 'double' a 'float'; posible pérdida de datos
-C:\Users\berta\Documents\GitHub\GTR_Framework\src\renderer.cpp(96,20): warning C4018: '<': no coinciden signed/unsigned
-C:\Users\berta\Documents\GitHub\GTR_Framework\src\renderer.cpp(105,20): warning C4018: '<': no coinciden signed/unsigned
 C:\Users\berta\Documents\GitHub\GTR_Framework\src\application.cpp(257,20): warning C4018: '<': no coinciden signed/unsigned
-C:\Users\berta\Documents\GitHub\GTR_Framework\src\renderer.cpp(141,21): warning C4018: '<': no coinciden signed/unsigned
 C:\Users\berta\Documents\GitHub\GTR_Framework\src\application.cpp(352,36): warning C4244: '*=': conversión de 'double' a 'float'; posible pérdida de datos
-C:\Users\berta\Documents\GitHub\GTR_Framework\src\renderer.cpp(191,20): warning C4018: '<': no coinciden signed/unsigned
 C:\Users\berta\Documents\GitHub\GTR_Framework\src\application.cpp(354,35): warning C4244: 'argumento': conversión de 'double' a 'float'; posible pérdida de datos
-C:\Users\berta\Documents\GitHub\GTR_Framework\src\renderer.cpp(259,10): warning C4244: 'inicializando': conversión de 'long' a 'float'; posible pérdida de datos
-C:\Users\berta\Documents\GitHub\GTR_Framework\src\renderer.cpp(277,21): warning C4018: '<': no coinciden signed/unsigned
-C:\Users\berta\Documents\GitHub\GTR_Framework\src\renderer.cpp(323,22): warning C4018: '<': no coinciden signed/unsigned
      Creando biblioteca ..\..\framework.lib y objeto ..\..\framework.exp
 LINK : warning LNK4098: la biblioteca predeterminada'LIBCMT' entra en conflicto con otras bibliotecas; use la biblioteca /NODEFAULTLIB:biblioteca
   Generando código
+  8 of 4232 functions ( 0.2%) were compiled, the rest were copied from previous compilation.
+    0 functions were new in current compilation
+    49 functions had inline decision re-evaluated but remain unchanged
   Generación de código finalizada
 LINK : warning LNK4286: "___glewDeleteBuffers" importa el símbolo "glew32s.lib(glew.obj)" definido en "imgui_impl_opengl3.obj"
 LINK : warning LNK4286: "___glewLinkProgram" importa el símbolo "glew32s.lib(glew.obj)" definido en "imgui_impl_opengl3.obj"
@@ -59,7 +49,4 @@ LINK : warning LNK4286: "___glewBindSampler" importa el símbolo "glew32s.lib(gl
 LINK : warning LNK4286: "___glewBindVertexArray" importa el símbolo "glew32s.lib(glew.obj)" definido en "imgui_impl_opengl3.obj"
 LINK : warning LNK4286: "___glewEnableVertexAttribArray" importa el símbolo "glew32s.lib(glew.obj)" definido en "imgui_impl_opengl3.obj"
 glew32s.lib(glew.obj) : warning LNK4099: no se encontró PDB 'vc120.pdb' con 'glew32s.lib(glew.obj)' o en 'C:\Users\berta\Documents\GitHub\GTR_Framework\vc120.pdb'; se vinculará el objeto sin tener en cuenta información de depuración
-  24 of 4232 functions ( 0.6%) were compiled, the rest were copied from previous compilation.
-    0 functions were new in current compilation
-    61 functions had inline decision re-evaluated but remain unchanged
   visualstudio.vcxproj -> C:\Users\berta\Documents\GitHub\GTR_Framework\framework.exe
