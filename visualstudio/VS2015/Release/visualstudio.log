@@ -1,19 +1,50 @@
-﻿  application.cpp
-C:\Users\berta\Documents\GitHub\GTR_Framework\src\scene.h(10,12): warning C4099: 'cJSON': nombre de tipo visto anteriormente usando 'struct' ahora se ve usando 'class'
+﻿  renderer.cpp
+C:\Users\berta\Documents\GitHub\GTR_Framework\src\extra\cJSON.h(104,1): warning C4099: 'cJSON': nombre de tipo visto anteriormente usando 'class' ahora se ve usando 'struct'
 C:\Users\berta\Documents\GitHub\GTR_Framework\src\extra\cJSON.h(103): message : vea la declaración de 'cJSON'
-C:\Users\berta\Documents\GitHub\GTR_Framework\src\application.cpp(117,14): warning C4244: 'inicializando': conversión de 'double' a 'float'; posible pérdida de datos
-C:\Users\berta\Documents\GitHub\GTR_Framework\src\application.cpp(118,20): warning C4244: 'inicializando': conversión de 'double' a 'float'; posible pérdida de datos
-C:\Users\berta\Documents\GitHub\GTR_Framework\src\application.cpp(134,55): warning C4244: 'argumento': conversión de 'double' a 'float'; posible pérdida de datos
-C:\Users\berta\Documents\GitHub\GTR_Framework\src\application.cpp(136,55): warning C4244: 'argumento': conversión de 'double' a 'float'; posible pérdida de datos
-C:\Users\berta\Documents\GitHub\GTR_Framework\src\application.cpp(257,20): warning C4018: '<': no coinciden signed/unsigned
-C:\Users\berta\Documents\GitHub\GTR_Framework\src\application.cpp(352,36): warning C4244: '*=': conversión de 'double' a 'float'; posible pérdida de datos
-C:\Users\berta\Documents\GitHub\GTR_Framework\src\application.cpp(354,35): warning C4244: 'argumento': conversión de 'double' a 'float'; posible pérdida de datos
+C:\Users\berta\Documents\GitHub\GTR_Framework\src\renderer.cpp(22,20): warning C4018: '<': no coinciden signed/unsigned
+C:\Users\berta\Documents\GitHub\GTR_Framework\src\renderer.cpp(32,20): warning C4018: '<': no coinciden signed/unsigned
+C:\Users\berta\Documents\GitHub\GTR_Framework\src\renderer.cpp(53,20): warning C4018: '<': no coinciden signed/unsigned
+C:\Users\berta\Documents\GitHub\GTR_Framework\src\renderer.cpp(82,34): warning C4305: 'argumento': truncamiento de 'double' a 'GLclampf'
+C:\Users\berta\Documents\GitHub\GTR_Framework\src\renderer.cpp(101,11): warning C4244: 'inicializando': conversión de 'int' a 'float'; posible pérdida de datos
+C:\Users\berta\Documents\GitHub\GTR_Framework\src\renderer.cpp(102,11): warning C4244: 'inicializando': conversión de 'int' a 'float'; posible pérdida de datos
+C:\Users\berta\Documents\GitHub\GTR_Framework\src\renderer.cpp(105,36): warning C4244: 'argumento': conversión de 'float' a 'GLsizei'; posible pérdida de datos
+C:\Users\berta\Documents\GitHub\GTR_Framework\src\renderer.cpp(105,29): warning C4244: 'argumento': conversión de 'float' a 'GLsizei'; posible pérdida de datos
+C:\Users\berta\Documents\GitHub\GTR_Framework\src\renderer.cpp(105,21): warning C4244: 'argumento': conversión de 'float' a 'GLint'; posible pérdida de datos
+C:\Users\berta\Documents\GitHub\GTR_Framework\src\renderer.cpp(105,15): warning C4244: 'argumento': conversión de 'float' a 'GLint'; posible pérdida de datos
+C:\Users\berta\Documents\GitHub\GTR_Framework\src\renderer.cpp(107,37): warning C4244: 'argumento': conversión de 'float' a 'GLsizei'; posible pérdida de datos
+C:\Users\berta\Documents\GitHub\GTR_Framework\src\renderer.cpp(107,30): warning C4244: 'argumento': conversión de 'float' a 'GLsizei'; posible pérdida de datos
+C:\Users\berta\Documents\GitHub\GTR_Framework\src\renderer.cpp(107,22): warning C4244: 'argumento': conversión de 'float' a 'GLint'; posible pérdida de datos
+C:\Users\berta\Documents\GitHub\GTR_Framework\src\renderer.cpp(107,17): warning C4244: 'argumento': conversión de 'float' a 'GLint'; posible pérdida de datos
+C:\Users\berta\Documents\GitHub\GTR_Framework\src\renderer.cpp(109,37): warning C4244: 'argumento': conversión de 'float' a 'GLsizei'; posible pérdida de datos
+C:\Users\berta\Documents\GitHub\GTR_Framework\src\renderer.cpp(109,30): warning C4244: 'argumento': conversión de 'float' a 'GLsizei'; posible pérdida de datos
+C:\Users\berta\Documents\GitHub\GTR_Framework\src\renderer.cpp(109,23): warning C4244: 'argumento': conversión de 'float' a 'GLint'; posible pérdida de datos
+C:\Users\berta\Documents\GitHub\GTR_Framework\src\renderer.cpp(109,15): warning C4244: 'argumento': conversión de 'float' a 'GLint'; posible pérdida de datos
+C:\Users\berta\Documents\GitHub\GTR_Framework\src\renderer.cpp(111,38): warning C4244: 'argumento': conversión de 'float' a 'GLsizei'; posible pérdida de datos
+C:\Users\berta\Documents\GitHub\GTR_Framework\src\renderer.cpp(111,31): warning C4244: 'argumento': conversión de 'float' a 'GLsizei'; posible pérdida de datos
+C:\Users\berta\Documents\GitHub\GTR_Framework\src\renderer.cpp(111,24): warning C4244: 'argumento': conversión de 'float' a 'GLint'; posible pérdida de datos
+C:\Users\berta\Documents\GitHub\GTR_Framework\src\renderer.cpp(111,17): warning C4244: 'argumento': conversión de 'float' a 'GLint'; posible pérdida de datos
+C:\Users\berta\Documents\GitHub\GTR_Framework\src\renderer.cpp(123,31): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
+C:\Users\berta\Documents\GitHub\GTR_Framework\src\renderer.cpp(123,28): warning C4244: 'argumento': conversión de 'float' a 'int'; posible pérdida de datos
+C:\Users\berta\Documents\GitHub\GTR_Framework\src\renderer.cpp(144,57): warning C4244: 'argumento': conversión de 'double' a 'float'; posible pérdida de datos
+C:\Users\berta\Documents\GitHub\GTR_Framework\src\renderer.cpp(144,41): warning C4244: 'argumento': conversión de 'double' a 'float'; posible pérdida de datos
+C:\Users\berta\Documents\GitHub\GTR_Framework\src\renderer.cpp(157,30): warning C4244: 'argumento': conversión de 'float' a 'GLsizei'; posible pérdida de datos
+C:\Users\berta\Documents\GitHub\GTR_Framework\src\renderer.cpp(157,27): warning C4244: 'argumento': conversión de 'float' a 'GLsizei'; posible pérdida de datos
+C:\Users\berta\Documents\GitHub\GTR_Framework\src\renderer.cpp(157,21): warning C4244: 'argumento': conversión de 'float' a 'GLint'; posible pérdida de datos
+C:\Users\berta\Documents\GitHub\GTR_Framework\src\renderer.cpp(157,15): warning C4244: 'argumento': conversión de 'float' a 'GLint'; posible pérdida de datos
+C:\Users\berta\Documents\GitHub\GTR_Framework\src\renderer.cpp(199,20): warning C4018: '<': no coinciden signed/unsigned
+C:\Users\berta\Documents\GitHub\GTR_Framework\src\renderer.cpp(208,20): warning C4018: '<': no coinciden signed/unsigned
+C:\Users\berta\Documents\GitHub\GTR_Framework\src\renderer.cpp(263,10): warning C4244: 'inicializando': conversión de 'long' a 'float'; posible pérdida de datos
+C:\Users\berta\Documents\GitHub\GTR_Framework\src\renderer.cpp(296,21): warning C4018: '<': no coinciden signed/unsigned
+C:\Users\berta\Documents\GitHub\GTR_Framework\src\renderer.cpp(349,20): warning C4018: '<': no coinciden signed/unsigned
+C:\Users\berta\Documents\GitHub\GTR_Framework\src\renderer.cpp(416,10): warning C4244: 'inicializando': conversión de 'long' a 'float'; posible pérdida de datos
+C:\Users\berta\Documents\GitHub\GTR_Framework\src\renderer.cpp(435,21): warning C4018: '<': no coinciden signed/unsigned
+C:\Users\berta\Documents\GitHub\GTR_Framework\src\renderer.cpp(481,22): warning C4018: '<': no coinciden signed/unsigned
      Creando biblioteca ..\..\framework.lib y objeto ..\..\framework.exp
 LINK : warning LNK4098: la biblioteca predeterminada'LIBCMT' entra en conflicto con otras bibliotecas; use la biblioteca /NODEFAULTLIB:biblioteca
   Generando código
-  8 of 4232 functions ( 0.2%) were compiled, the rest were copied from previous compilation.
+  4 of 4237 functions (<0.1%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
-    49 functions had inline decision re-evaluated but remain unchanged
+    51 functions had inline decision re-evaluated but remain unchanged
   Generación de código finalizada
 LINK : warning LNK4286: "___glewDeleteBuffers" importa el símbolo "glew32s.lib(glew.obj)" definido en "imgui_impl_opengl3.obj"
 LINK : warning LNK4286: "___glewLinkProgram" importa el símbolo "glew32s.lib(glew.obj)" definido en "imgui_impl_opengl3.obj"

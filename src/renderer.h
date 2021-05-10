@@ -14,7 +14,14 @@ namespace GTR {
 		SHOW_AO,
 		SHOW_UVS,
 		SHOW_MULTI,
-		SHOW_DEPTH
+		SHOW_DEPTH,
+		SHOW_GBUFFERS,
+		SHOW_DEFERRED
+	};
+
+	enum ePipelineMode {
+		DEFERRED,
+		FORWARD
 	};
 
 	struct sRenderCall {
@@ -37,7 +44,11 @@ namespace GTR {
 		std::vector<sRenderCall> rendercall_v;
 
 		eRenderMode render_mode;
+		ePipelineMode pipeline_mode;
 		bool render_alpha;
+
+		FBO gbuffers_fbo;
+		FBO illumination_fbo;
 
 		Renderer(GTR::Scene* scene);
 
@@ -46,6 +57,10 @@ namespace GTR {
 		void renderCallNum(GTR::Node* node, Camera* camera, Matrix44 model, Prefab* prefab);
 
 		void renderToFBO(GTR::Scene* scene, Camera* camera);
+
+		void renderToFBOForward(GTR::Scene* scene, Camera* camera);
+		void renderToFBODeferred(GTR::Scene* scene, Camera* camera);
+		void renderMeshDeferred(const Matrix44 model, Mesh* mesh, GTR::Material* material, Camera* camera);
 
 		//renders several elements of the scene
 		void renderScene(GTR::Scene* scene, Camera* camera);
