@@ -33,8 +33,10 @@
 *.app
 
 /.vs
-/visualstudio/.vs
+/visualstudio
 /xcode
 framework*
 LICENSE
 Makefile
+*.pdb
+*.ini
