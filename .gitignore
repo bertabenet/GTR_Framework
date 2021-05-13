@@ -33,8 +33,8 @@
 *.app
 
 /.vs
-/visualstudio
-/xcode
+visualstudio/
+xcode/
 framework*
 LICENSE
 Makefile
