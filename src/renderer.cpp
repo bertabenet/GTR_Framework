@@ -122,7 +122,8 @@ void Renderer::renderToFBODeferred(GTR::Scene* scene, Camera* camera) {
 			//start rendering to the illumination fbo
 			illumination_fbo.bind();
 
-			joinGbuffers(scene, camera);
+			//joinGbuffers(scene, camera);
+			illuminationDeferred(scene, camera);
 
 			illumination_fbo.unbind();
 			//be sure blending is not active
@@ -135,6 +136,58 @@ void Renderer::renderToFBODeferred(GTR::Scene* scene, Camera* camera) {
 		shader->disable();
 	}
 
+}
+
+void Renderer::illuminationDeferred(GTR::Scene* scene, Camera* camera) {
+
+	float w = Application::instance->window_width;
+	float h = Application::instance->window_height;
+	Matrix44 inv_vp = camera->viewprojection_matrix;
+	inv_vp.inverse();
+	//we need a fullscreen quad
+	//Mesh* quad = Mesh::getQuad();
+	Mesh* sphere = Mesh::Get("data/meshes/sphere.obj", true);
+
+	Shader* sh =Shader::Get("deferred_ws");
+
+	sh->enable();
+	//pass the gbuffers to the shader
+	sh->setUniform("u_color_texture", gbuffers_fbo.color_textures[0], 0);
+	sh->setUniform("u_normal_texture", gbuffers_fbo.color_textures[1], 1);
+	sh->setUniform("u_extra_texture", gbuffers_fbo.color_textures[2], 2);
+	sh->setUniform("u_depth_texture", gbuffers_fbo.depth_texture, 3);
+
+	//pass the inverse projection of the camera to reconstruct world pos.
+	sh->setUniform("u_inverse_viewprojection", inv_vp);
+	//pass the inverse window resolution, this may be useful
+	sh->setUniform("u_iRes", Vector2(1.0 / (float)w, 1.0 / (float)h));
+
+	sh->setUniform("u_ambient_light", scene->ambient_light);
+	sh->setUniform("u_viewprojection", camera->viewprojection_matrix);
+
+	for (int i = 0; i < scene->l_entities.size(); ++i) {
+		LightEntity* lent = scene->l_entities[i];
+		
+		if (lent->name == "lamp") {
+			lent->setUniforms(sh);
+
+			Matrix44 m;
+			m.setTranslation(lent->model.getTranslation().x, lent->model.getTranslation().y, lent->model.getTranslation().z);
+			//and scale it according to the max_distance of the light
+			m.scale(lent->max_distance, lent->max_distance, lent->max_distance);
+
+			//pass the model to the shader to render the sphere
+			sh->setUniform("u_model", m);
+			
+		}
+	}
+	
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_BLEND);
+
+	//quad->render(GL_TRIANGLES);
+	sphere->render(GL_TRIANGLES);
+	
 }
 
 void Renderer::renderToFBO(GTR::Scene* scene, Camera* camera) {

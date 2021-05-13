@@ -635,7 +635,7 @@ void main()
 	
 	//normals must be converted from 0..1 to -1..+1
 	vec3 N = texture( u_normal_texture, uv ).xyz * 2.0 - 1.0;
-	N = normalize(N); //always normalize in case of data loss
+	N = clamp(normalize(N), 0.0, 1.0); //always normalize in case of data loss
 	
 	//reconstruct world position from depth and inv. viewproj
 	float depth = texture( u_depth_texture, uv ).x;
@@ -645,9 +645,9 @@ void main()
 	
 	//now do your illumination using worldpos and the normal...
 	vec3 light = u_ambient_light * occlusion;
-
-	/*vec3 L = normalize( u_light_position -  worldpos );
-
+	
+	vec3 L = normalize( u_light_position -  worldpos );
+	
 	//compute distance
 	float light_distance = length(u_light_position - worldpos );
 	float att_factor = u_maxdist - light_distance; //compute a linear attenuation factor
@@ -660,27 +660,8 @@ void main()
 		vec3 point = clamp(dot(L, N), 0.0, 1.0) * u_light_color * u_light_factor * att_factor; 
 		light += point;
 	}
-	
-	// SPOT (type 2)
-	if(u_light_type == 2){
-		L = normalize( u_light_position -  v_world_position );
-		vec3 D = normalize(u_direction);
-		float spotCosine = dot(D,-L);
-		float spotFactor = 0.0;
-		if (spotCosine >= u_spotCosineCutoff) { 
-			spotFactor = pow(spotCosine, u_spotExponent);
-		}
-		vec3 spot = dot(L, N) * texture(u_texture, v_uv).xyz * u_light_color * spotFactor * att_factor;
-		light += spot;
-	}
-	
-	// DIRECTIONAL (type 3)
-	if(u_light_type == 3){
-		L = normalize(u_light_position);
-		vec3 directional = dot(L, N) * texture(u_texture, v_uv).xyz * u_light_color * u_light_factor; 
-		light += directional;
-	}*/
-	
+
+
 	color *= light;
 	
 	FragColor = vec4(color, 1.0);

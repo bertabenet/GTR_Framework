@@ -40,5 +40,3 @@ LICENSE
 Makefile
 *.pdb
 *.ini
-
-visualstudio/VS2015/Release/framework.iobj
