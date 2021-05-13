@@ -11,6 +11,7 @@ occlusion basic.vs occlusion.fs
 light_multipass basic.vs light_multipass.fs
 fx quad.vs fx.fs
 deferred quad.vs deferred.fs
+deferred_ws basic.vs deferred.fs
 
 
 \norm_tangent
@@ -375,34 +376,7 @@ uniform float u_shadow_bias;
 
 out vec4 FragColor;
 
-mat3 cotangent_frame(vec3 N, vec3 p, vec2 uv)
-{
-	// get edge vectors of the pixel triangle
-	vec3 dp1 = dFdx( p );
-	vec3 dp2 = dFdy( p );
-	vec2 duv1 = dFdx( uv );
-	vec2 duv2 = dFdy( uv );
-	
-	// solve the linear system
-	vec3 dp2perp = cross( dp2, N );
-	vec3 dp1perp = cross( N, dp1 );
-	vec3 T = dp2perp * duv1.x + dp1perp * duv2.x;
-	vec3 B = dp2perp * duv1.y + dp1perp * duv2.y;
- 
-	// construct a scale-invariant frame 
-	float invmax = inversesqrt( max( dot(T,T), dot(B,B) ) );
-	return mat3( T * invmax, B * invmax, N );
-}
-
-// assume N, the interpolated vertex normal and 
-// WP the world position
-//vec3 normal_pixel = texture2D( normalmap, uv ).xyz; 
-vec3 perturbNormal(vec3 N, vec3 WP, vec2 uv, vec3 normal_pixel)
-{
-	normal_pixel = normal_pixel * 255./127. - 128./127.;
-	mat3 TBN = cotangent_frame(N, WP, uv);
-	return normalize(TBN * normal_pixel);
-}
+#include "norm_tangent"
 
 void main()
 {
@@ -430,7 +404,7 @@ void main()
 	// POINT (type 1)
 	if(u_light_type == 1){
 		//apply to amount of light
-		vec3 point = clamp(dot(L, N), 0.0, 1.0) * texture(u_texture, v_uv).xyz * u_light_color * u_light_factor * att_factor; 
+		vec3 point = clamp(dot(L, N), 0.0, 1.0) * u_light_color * u_light_factor * att_factor; 
 		light += point;
 	}
 	
@@ -443,14 +417,14 @@ void main()
 		if (spotCosine >= u_spotCosineCutoff) { 
 			spotFactor = pow(spotCosine, u_spotExponent);
 		}
-		vec3 spot = dot(L, N) * texture(u_texture, v_uv).xyz * u_light_color * spotFactor * att_factor;
+		vec3 spot = dot(L, N) * u_light_color * spotFactor * att_factor;
 		light += spot;
 	}
 	
 	// DIRECTIONAL (type 3)
 	if(u_light_type == 3){
 		L = normalize(u_light_position);
-		vec3 directional = dot(L, N) * texture(u_texture, v_uv).xyz * u_light_color * u_light_factor; 
+		vec3 directional = dot(L, N) * u_light_color * u_light_factor; 
 		light += directional;
 	}
 	
@@ -625,6 +599,8 @@ void main()
 
 \deferred.fs
 
+#version 330 core
+
 uniform sampler2D u_color_texture;
 uniform sampler2D u_normal_texture;
 uniform sampler2D u_extra_texture;
@@ -636,6 +612,16 @@ uniform vec2 u_iRes;
 //uniform vec4 u_light_info;
 
 uniform vec3 u_ambient_light;
+uniform vec3 u_emissive_factor;
+
+uniform int u_light_type;
+uniform vec3 u_light_position;
+uniform vec3 u_light_color;
+uniform vec3 u_direction;
+uniform float u_spotExponent;
+uniform float u_spotCosineCutoff;
+uniform float u_light_factor;
+uniform float u_maxdist;
 
 //pass here all the uniforms required for illumination...
 out vec4 FragColor;
@@ -659,6 +645,41 @@ void main()
 	
 	//now do your illumination using worldpos and the normal...
 	vec3 light = u_ambient_light * occlusion;
+
+	/*vec3 L = normalize( u_light_position -  worldpos );
+
+	//compute distance
+	float light_distance = length(u_light_position - worldpos );
+	float att_factor = u_maxdist - light_distance; //compute a linear attenuation factor
+	att_factor /= u_maxdist; //normalize factor
+	att_factor = max( att_factor, 0.0 ); //ignore negative values
+	
+	// POINT (type 1)
+	if(u_light_type == 1){
+		//apply to amount of light
+		vec3 point = clamp(dot(L, N), 0.0, 1.0) * u_light_color * u_light_factor * att_factor; 
+		light += point;
+	}
+	
+	// SPOT (type 2)
+	if(u_light_type == 2){
+		L = normalize( u_light_position -  v_world_position );
+		vec3 D = normalize(u_direction);
+		float spotCosine = dot(D,-L);
+		float spotFactor = 0.0;
+		if (spotCosine >= u_spotCosineCutoff) { 
+			spotFactor = pow(spotCosine, u_spotExponent);
+		}
+		vec3 spot = dot(L, N) * texture(u_texture, v_uv).xyz * u_light_color * spotFactor * att_factor;
+		light += spot;
+	}
+	
+	// DIRECTIONAL (type 3)
+	if(u_light_type == 3){
+		L = normalize(u_light_position);
+		vec3 directional = dot(L, N) * texture(u_texture, v_uv).xyz * u_light_color * u_light_factor; 
+		light += directional;
+	}*/
 	
 	color *= light;
 	

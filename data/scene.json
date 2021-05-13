@@ -1,6 +1,6 @@
 {
 	"background_color":[0.100,0.133,0.191],
-	"ambient_light":[0.054,0.054,0.054],
+	"ambient_light":[0.54,0.54,0.54],
 	"entities":[
 		{
 			"name":"floor",
