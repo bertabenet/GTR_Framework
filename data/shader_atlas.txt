@@ -12,6 +12,7 @@ light_multipass basic.vs light_multipass.fs
 fx quad.vs fx.fs
 deferred quad.vs deferred.fs
 deferred_ws basic.vs deferred.fs
+add_ambient quad.vs add_ambient.fs
 
 
 \norm_tangent
@@ -535,7 +536,7 @@ void main()
 
 
 	FragColor = color;
-	NormalMapColor = vec4(N,1.0);
+	NormalMapColor = vec4(N*0.5 + vec3(0.5),1.0);
 	ExtraColor = material_properties;
 	
 }
@@ -635,7 +636,8 @@ void main()
 	
 	//normals must be converted from 0..1 to -1..+1
 	vec3 N = texture( u_normal_texture, uv ).xyz * 2.0 - 1.0;
-	N = clamp(normalize(N), 0.0, 1.0); //always normalize in case of data loss
+	//N = clamp(normalize(N), 0.0, 10.0); //always normalize in case of data loss
+	//N = max(normalize(N), 0.0);
 	
 	//reconstruct world position from depth and inv. viewproj
 	float depth = texture( u_depth_texture, uv ).x;
@@ -660,9 +662,51 @@ void main()
 		vec3 point = clamp(dot(L, N), 0.0, 1.0) * u_light_color * u_light_factor * att_factor; 
 		light += point;
 	}
+	
+	// SPOT (type 2)
+	if(u_light_type == 2){
+		L = normalize( u_light_position -  worldpos );
+		vec3 D = normalize(u_direction);
+		float spotCosine = dot(D,-L);
+		float spotFactor = 0.0;
+		if (spotCosine >= u_spotCosineCutoff) { 
+			spotFactor = pow(spotCosine, u_spotExponent);
+		}
+		vec3 spot = dot(L, N) * u_light_color * spotFactor * att_factor;
+		light += spot;
+	}
+	
+	// DIRECTIONAL (type 3)
+	if(u_light_type == 3){
+		L = normalize(u_light_position);
+		vec3 directional = dot(L, N) * u_light_color * u_light_factor; 
+		light += directional;
+	}
 
 
 	color *= light;
 	
 	FragColor = vec4(color, 1.0);
+}
+
+\add_ambient.fs
+
+#version 330 core
+
+in vec2 v_uv;
+
+uniform vec3 u_ambient_light;
+uniform sampler2D u_color_texture;
+
+//pass here all the uniforms required for illumination...
+out vec4 FragColor;
+
+void main()
+{
+	
+	vec4 color = texture2D(u_color_texture, v_uv);
+	color *= vec4(u_ambient_light, 1.0);
+	
+	FragColor = color;
+
 }

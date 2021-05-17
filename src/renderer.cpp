@@ -24,7 +24,7 @@ Renderer::Renderer(GTR::Scene* scene)
 		lent->fbo.create(Application::instance->window_width, Application::instance->window_height, 1, GL_RGB);
 	}
 	gbuffers_fbo = FBO();
-	gbuffers_fbo.create(Application::instance->window_width, Application::instance->window_height, 3, GL_RGBA, GL_UNSIGNED_BYTE, true);
+	gbuffers_fbo.create(Application::instance->window_width, Application::instance->window_height, 3, GL_RGBA, GL_FLOAT, true);
 }
 
 void Renderer::renderToFBOForward(GTR::Scene* scene, Camera* camera) {
@@ -129,12 +129,21 @@ void Renderer::renderToFBODeferred(GTR::Scene* scene, Camera* camera) {
 			//be sure blending is not active
 			glDisable(GL_BLEND);
 
+			Shader* ambient_shader = Shader::Get("add_ambient");
+			ambient_shader->enable();
+			ambient_shader->setUniform("u_ambient_light", scene->ambient_light);
+			ambient_shader->setUniform("u_color_texture", gbuffers_fbo.color_textures[0], 0);
+
 			glViewport(0.0f, 0.0f, w, h);
+			gbuffers_fbo.color_textures[0]->toViewport(ambient_shader);
+			glEnable(GL_BLEND);
 			illumination_fbo.color_textures[0]->toViewport();
+			ambient_shader->disable();
 
 		}
 		shader->disable();
 	}
+	glDisable(GL_BLEND);
 
 }
 
@@ -165,12 +174,30 @@ void Renderer::illuminationDeferred(GTR::Scene* scene, Camera* camera) {
 	sh->setUniform("u_ambient_light", scene->ambient_light);
 	sh->setUniform("u_viewprojection", camera->viewprojection_matrix);
 
+	sh->setUniform("u_ambient_light", Vector3(0, 0, 0));
+
+	bool first = true;
+	glEnable(GL_CULL_FACE);
+	glFrontFace(GL_CW);
+
 	for (int i = 0; i < scene->l_entities.size(); ++i) {
 		LightEntity* lent = scene->l_entities[i];
-		
-		if (lent->name == "lamp") {
-			lent->setUniforms(sh);
 
+		if (!lent->visible) continue;
+		
+		lent->setUniforms(sh);
+
+		if (i == 0) {
+			glDisable(GL_DEPTH_TEST);
+			glDisable(GL_BLEND);
+		}
+		else {
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_ONE, GL_ONE);
+		}
+
+		if (lent->light_type == POINT || lent->light_type == SPOT) 
+		{
 			Matrix44 m;
 			m.setTranslation(lent->model.getTranslation().x, lent->model.getTranslation().y, lent->model.getTranslation().z);
 			//and scale it according to the max_distance of the light
@@ -178,15 +205,37 @@ void Renderer::illuminationDeferred(GTR::Scene* scene, Camera* camera) {
 
 			//pass the model to the shader to render the sphere
 			sh->setUniform("u_model", m);
-			
-		}
-	}
-	
-	glDisable(GL_DEPTH_TEST);
-	glDisable(GL_BLEND);
 
-	//quad->render(GL_TRIANGLES);
-	sphere->render(GL_TRIANGLES);
+			sphere->render(GL_TRIANGLES);
+		}
+		/*if (lent->light_type == DIRECTIONAL) {
+			Mesh* quad = Mesh::getQuad();
+
+			Shader* s = Shader::Get("deferred");
+			s->enable();
+			lent->setUniforms(s);
+			
+			s->setUniform("u_color_texture", gbuffers_fbo.color_textures[0], 0);
+			s->setUniform("u_normal_texture", gbuffers_fbo.color_textures[1], 1);
+			s->setUniform("u_extra_texture", gbuffers_fbo.color_textures[2], 2);
+			s->setUniform("u_depth_texture", gbuffers_fbo.depth_texture, 3);
+
+			//pass the inverse projection of the camera to reconstruct world pos.
+			s->setUniform("u_inverse_viewprojection", inv_vp);
+			//pass the inverse window resolution, this may be useful
+			s->setUniform("u_iRes", Vector2(1.0 / (float)w, 1.0 / (float)h));
+
+			s->setUniform("u_ambient_light", scene->ambient_light);
+			s->setUniform("u_viewprojection", camera->viewprojection_matrix);
+
+			s->setUniform("u_ambient_light", Vector3(0, 0, 0));
+
+			quad->render(GL_TRIANGLES);
+			s->disable();
+		}*/
+	}
+
+	glFrontFace(GL_CCW);
 	
 }
 
@@ -600,8 +649,8 @@ void Renderer::renderMeshWithMaterial(const Matrix44 model, Mesh* mesh, GTR::Mat
 				else shader->setUniform("u_have_shadows", false);
 
 				if (i != 0) {
-					shader->setUniform("u_ambient_light", (float)0.0);
-					shader->setUniform("u_emissive_factor", (float)0.0);
+					shader->setUniform("u_ambient_light", Vector3(0, 0, 0));
+					shader->setUniform("u_emissive_factor", Vector3(0, 0, 0));
 				}
 				
 				mesh->render(GL_TRIANGLES);				
