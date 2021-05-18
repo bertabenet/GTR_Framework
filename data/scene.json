@@ -1,12 +1,15 @@
 {
-	"background_color":[0.100,0.133,0.191],
-	"ambient_light":[0.54,0.54,0.54],
+	"background_color":[0.01,0.01,0.1],
+	"ambient_light":[0.1,0.1,0.2],
+	"camera_position":[-300,90,-150],
+	"camera_target":[0,40,0],
+	"camera_fov":60,
 	"entities":[
 		{
 			"name":"floor",
 			"type":"PREFAB",
 			"filename":"prefabs/floor.glb",
-			"position":[0,-0.1,0]
+			"position":[0,0,0]
 		},
 		{
 			"name":"car1",
@@ -14,6 +17,13 @@
 			"filename":"prefabs/gmc/scene.gltf",
 			"position":[-80,0,-100],
 			"angle":-45
+		},
+		{
+			"name":"car2",
+			"type":"PREFAB",
+			"filename":"prefabs/gmc/scene.gltf",
+			"position":[-50,0,233],
+			"angle":200
 		},
 		{
 			"name":"house",
@@ -30,69 +40,65 @@
 			"scale":[0.4,0.4,0.4]
 		},
 		{
-			"name":"headlight1",
+			"name":"trash",
+			"type":"PREFAB",
+			"filename":"prefabs/trash_can/scene.gltf",
+			"position":[140,0,110],
+			"scale":[0.5,0.5,0.5]
+		},
+		{
+			"name":"tree",
+			"type":"PREFAB",
+			"filename":"prefabs/tree/scene.gltf",
+			"position":[102,0,401],
+			"angle":-90,
+			"scale":[0.8,0.8,0.8]
+		},
+		{
+			"name":"spot",
 			"type":"LIGHT",
+			"position":[0,36,-16],
+			"angle": -45,
+			"color":[1,0.9,0.8],
+			"intensity":10,
+			"max_dist":1000,
+			"cone_angle":45,
+			"cone_exp":60,
 			"light_type":"SPOT",
-			"position":[-33.7,36.6,-11.8],
-			"target":[1.0,0.0,1.0],
-			"color":[0.96, 0.79, 0.48],
+			"cast_shadows": true,
+			"shadow_bias": 0.001
+		},
+		{
+			"name":"pointlight",
+			"type":"LIGHT",
+			"position":[-187,38,-156],
+			"angle": 0,
+			"color":[1,0.2,0.1],
+			"intensity":2.5,
+			"max_dist":70,
+			"light_type":"POINT"
+		},
+		{
+			"name":"pointlight2",
+			"type":"LIGHT",
+			"position":[-131,38,-205],
+			"angle": 0,
+			"color":[1,0.2,0.1],
+			"intensity":2.5,
+			"max_dist":70,
+			"light_type":"POINT"
+		},
+		{
+			"name":"moonlight",
+			"type":"LIGHT",
+			"position":[150,300,50],
+			"target":[-80,0,-50],
+			"color":[0.1,0.2,0.4],
 			"intensity":1.5,
-			"max_distance":670.0,
-			"cone_angle":45.0,
-			"area_size":1.0
-		},
-		{
-			"name":"headlight2",
-			"type":"LIGHT",
-			"light_type":"SPOT",
-			"position":[10.312,39.256,-52.538],
-			"target":[1.0,0.0,1.0],
-			"color":[0.96, 0.79, 0.48],
-			"intensity":1.5,
-			"max_distance":670.0,
-			"cone_angle":45.0,
-			"area_size":1.0
-		},
-		{
-			"name":"backlight1",
-			"type":"LIGHT",
-			"light_type":"POINT",
-			"position":[-137.266,38.571,-205.999],
-			"target":[9.0,-342.0,-65.0],
-			"color":[0.926,0.009,0.009],
-			"intensity":1.22,
-			"max_distance":65.0,
-			"cone_angle":45.0,
-			"area_size":0.270
-		},
-		{
-			"name":"backlight2",
-			"type":"LIGHT",
-			"light_type":"POINT",
-			"position":[-184.522,38.923,-158.328],
-			"target":[9.0,-172.0,-65.0],
-			"color":[0.926,0.009,0.009],
-			"intensity":1.22,
-			"max_distance":65.0,
-			"cone_angle":45.0,
-			"area_size":0.270
-		},
-		{
-			"name":"moon",
-			"type":"LIGHT",
-			"light_type":"DIRECTIONAL",
-			"position":[0.0, 1.0, 1.0],
-			"color":[0.323, 0.281, 0.392],
-			"intensity":1.26
-		},
-		{
-			"name":"lamp",
-			"type":"LIGHT",
-			"light_type":"POINT",
-			"position":[157.066, 118.721, -262.293],
-			"color":[0.503, 0.778, 0.877],
-			"intensity":4.0,
-			"max_distance":100.0
+			"area_size":1500,
+			"max_dist":1000,
+			"cast_shadows": true,
+			"light_type":"DIRECTIONAL"
 		}
 	]
 }

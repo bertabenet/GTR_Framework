@@ -4,6 +4,7 @@
 #include "framework.h"
 #include "shader.h"
 #include "fbo.h"
+#include "camera.h"
 #include <string>
 
 //forward declaration
@@ -88,6 +89,7 @@ namespace GTR {
 
 		Vector3 background_color;
 		Vector3 ambient_light;
+		Camera main_camera;
 
 		Scene();
 
